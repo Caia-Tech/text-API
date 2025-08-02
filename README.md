@@ -243,7 +243,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 TextLib is developed and maintained by [Caia Tech](https://caiatech.com), a technology company focused on advanced AI and machine learning solutions.
 
 **CEO**: Marvin Tutt  
-**Contact**: [hello@caiatech.com](mailto:hello@caiatech.com)
+**Contact**: [owner@caiatech.com](mailto:owner@caiatech.com)
 
 ## Acknowledgments
 
