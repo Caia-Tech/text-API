@@ -138,6 +138,7 @@ type PermissionIssue struct {
 
 // Basic parsing functions
 
+// Deprecated: Use AnalyzeCode().Metrics.TotalLines instead for comprehensive analysis
 func CountLines(code string) int {
 	if code == "" {
 		return 0
@@ -146,6 +147,7 @@ func CountLines(code string) int {
 	return len(strings.Split(code, "\n"))
 }
 
+// Deprecated: Use AnalyzeCode().Metrics.BlankLines instead for comprehensive analysis
 func CountBlankLines(code string) int {
 	if code == "" {
 		return 0
@@ -168,6 +170,7 @@ func CountBlankLines(code string) int {
 	return count
 }
 
+// Deprecated: Use AnalyzeCode().Metrics.CommentLines instead for comprehensive analysis
 func CountCommentLines(code string) int {
 	lines := strings.Split(code, "\n")
 	count := 0
@@ -933,6 +936,7 @@ func CountReturnStatements(code string) int {
 
 // Naming/Convention Checks functions
 
+// Deprecated: Use ValidateNaming() with appropriate NamingRules instead
 func CheckCamelCase(name string) bool {
 	if name == "" {
 		return false
@@ -960,6 +964,7 @@ func CheckCamelCase(name string) bool {
 	return hasUppercase || len(name) == 1
 }
 
+// Deprecated: Use ValidateNaming() with appropriate NamingRules instead
 func CheckSnakeCase(name string) bool {
 	if name == "" {
 		return false
