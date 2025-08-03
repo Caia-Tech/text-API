@@ -1,0 +1,605 @@
+openapi: 3.0.3
+info:
+  title: TextLib RL-Optimized API
+  description: |
+    Advanced text processing API with reinforcement learning optimization capabilities.
+    This API provides multi-algorithm text analysis functions that adapt based on requirements
+    and learn optimal processing strategies over time.
+  version: 1.0.0
+  contact:
+    name: Caia Tech
+    email: support@caiatech.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development server
+  - url: https://api.textlib.caiatech.com/v1
+    description: Production server
+
+tags:
+  - name: complexity
+    description: Text complexity analysis operations
+  - name: keyphrases
+    description: Key phrase extraction operations
+  - name: readability
+    description: Readability metrics operations
+  - name: language
+    description: Language detection operations
+  - name: metrics
+    description: Performance metrics and monitoring
+
+paths:
+  /analyze/complexity:
+    post:
+      tags:
+        - complexity
+      summary: Analyze text complexity
+      description: |
+        Provides multi-depth complexity analysis with configurable processing levels:
+        - Depth 1: O(n) - Basic metrics only
+        - Depth 2: O(n log n) - Basic + Structural analysis
+        - Depth 3: O(n²) - Basic + Structural + Deep semantic analysis
+      operationId: analyzeTextComplexity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+                  description: Text to analyze
+                  example: "The quantum mechanics principles demonstrate wave-particle duality."
+                depth:
+                  type: integer
+                  minimum: 1
+                  maximum: 3
+                  default: 2
+                  description: Analysis depth (1=fast, 2=balanced, 3=comprehensive)
+      responses:
+        '200':
+          description: Successful complexity analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplexityReport'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /extract/keyphrases:
+    post:
+      tags:
+        - keyphrases
+      summary: Extract key phrases
+      description: |
+        Extracts key phrases with adaptive algorithm selection:
+        - 1-10 phrases: Fast TF-IDF approach
+        - 11-50 phrases: Enhanced statistical methods
+        - 51+ phrases: Deep NLP analysis
+      operationId: extractKeyPhrases
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+                - maxPhrases
+              properties:
+                text:
+                  type: string
+                  description: Text to extract phrases from
+                  example: "Machine learning transforms business operations through intelligent automation."
+                maxPhrases:
+                  type: integer
+                  minimum: 1
+                  maximum: 200
+                  description: Maximum number of key phrases to extract
+                  example: 10
+      responses:
+        '200':
+          description: Successful key phrase extraction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  phrases:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/KeyPhrase'
+                  metadata:
+                    type: object
+                    properties:
+                      algorithm:
+                        type: string
+                        example: "tf-idf"
+                      processingTime:
+                        type: string
+                        format: duration
+                        example: "52ms"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /calculate/readability:
+    post:
+      tags:
+        - readability
+      summary: Calculate readability metrics
+      description: |
+        Calculates various readability scores with configurable algorithms.
+        Available algorithms: flesch, gunning-fog, coleman-liau, ari, smog, all
+      operationId: calculateReadabilityMetrics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+                  description: Text to analyze
+                algorithms:
+                  type: array
+                  items:
+                    type: string
+                    enum: [flesch, gunning-fog, coleman-liau, ari, smog, all]
+                  default: [flesch, gunning-fog]
+                  description: Readability algorithms to apply
+      responses:
+        '200':
+          description: Successful readability calculation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadabilityReport'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /detect/language:
+    post:
+      tags:
+        - language
+      summary: Detect text language
+      description: |
+        Detects language with configurable confidence threshold.
+        Higher confidence requirements result in more thorough analysis.
+      operationId: detectLanguage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+                  description: Text to analyze
+                  example: "Bonjour, comment allez-vous?"
+                confidence:
+                  type: number
+                  format: float
+                  minimum: 0.5
+                  maximum: 0.95
+                  default: 0.8
+                  description: Required confidence level (0.5=fast, 0.95=comprehensive)
+      responses:
+        '200':
+          description: Successful language detection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LanguageResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /metrics:
+    get:
+      tags:
+        - metrics
+      summary: Get global API metrics
+      description: Retrieves aggregated performance metrics and usage statistics
+      operationId: getGlobalMetrics
+      responses:
+        '200':
+          description: Global metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIMetrics'
+
+  /metrics/reset:
+    post:
+      tags:
+        - metrics
+      summary: Reset global metrics
+      description: Resets all collected metrics (admin only)
+      operationId: resetGlobalMetrics
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '204':
+          description: Metrics reset successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+    ComplexityReport:
+      type: object
+      properties:
+        lexicalComplexity:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Lexical complexity score
+          example: 0.72
+        syntacticComplexity:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Syntactic complexity score
+          example: 0.65
+        semanticComplexity:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Semantic complexity score (depth 3 only)
+          example: 0.78
+        readabilityScores:
+          type: object
+          additionalProperties:
+            type: number
+            format: float
+          example:
+            flesch-kincaid: 12.5
+            gunning-fog: 14.2
+        processingTime:
+          type: string
+          format: duration
+          description: Processing time
+          example: "125ms"
+        memoryUsed:
+          type: integer
+          format: int64
+          description: Memory used in bytes
+          example: 2097152
+        algorithmUsed:
+          type: string
+          description: Algorithm identifier
+          example: "complexity-depth-2"
+        qualityMetrics:
+          $ref: '#/components/schemas/QualityMetrics'
+
+    KeyPhrase:
+      type: object
+      properties:
+        text:
+          type: string
+          description: The key phrase text
+          example: "machine learning"
+        score:
+          type: number
+          format: float
+          description: Relevance score
+          example: 0.85
+        position:
+          $ref: '#/components/schemas/Position'
+        category:
+          type: string
+          enum: [term, phrase, multi-phrase, noun-phrase]
+          description: Phrase category
+          example: "phrase"
+        context:
+          type: string
+          description: Surrounding context
+          example: "...advanced machine learning algorithms..."
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Extraction confidence
+          example: 0.92
+
+    Position:
+      type: object
+      properties:
+        start:
+          type: integer
+          description: Start position in text
+          example: 42
+        end:
+          type: integer
+          description: End position in text
+          example: 58
+        line:
+          type: integer
+          description: Line number (if applicable)
+          example: 3
+
+    ReadabilityReport:
+      type: object
+      properties:
+        scores:
+          type: object
+          additionalProperties:
+            type: number
+            format: float
+          example:
+            flesch-kincaid: 8.2
+            gunning-fog: 10.5
+            coleman-liau: 9.8
+        recommendation:
+          type: string
+          description: Reading level recommendation
+          example: "Suitable for high school level"
+        targetAudience:
+          type: array
+          items:
+            type: string
+          example: ["high-school", "college", "professional"]
+        improvementSuggestions:
+          type: array
+          items:
+            type: string
+          example: ["Reduce sentence length", "Use simpler vocabulary"]
+        processingCost:
+          $ref: '#/components/schemas/ProcessingCost'
+
+    LanguageResult:
+      type: object
+      properties:
+        language:
+          type: string
+          description: ISO 639-1 language code
+          example: "en"
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Detection confidence
+          example: 0.95
+        alternatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/LanguageCandidate'
+        method:
+          type: string
+          description: Detection method used
+          example: "statistical-ngram"
+        processingTime:
+          type: string
+          format: duration
+          example: "15ms"
+
+    LanguageCandidate:
+      type: object
+      properties:
+        language:
+          type: string
+          description: ISO 639-1 language code
+          example: "es"
+        confidence:
+          type: number
+          format: float
+          example: 0.12
+        reason:
+          type: string
+          description: Why this language was considered
+          example: "Common words match"
+
+    QualityMetrics:
+      type: object
+      properties:
+        accuracy:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Analysis accuracy
+          example: 0.90
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Result confidence
+          example: 0.85
+        coverage:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Analysis coverage
+          example: 0.95
+
+    ProcessingCost:
+      type: object
+      properties:
+        timeMs:
+          type: integer
+          format: int64
+          description: Processing time in milliseconds
+          example: 125
+        memoryKB:
+          type: integer
+          format: int64
+          description: Memory used in kilobytes
+          example: 2048
+        cpuCycles:
+          type: integer
+          format: int64
+          description: Estimated CPU cycles
+          example: 1000000
+
+    APIMetrics:
+      type: object
+      properties:
+        functionCalls:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+          example:
+            AnalyzeTextComplexity: 1523
+            ExtractKeyPhrases: 2847
+        performanceStats:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PerformanceStats'
+        resourceUsageStats:
+          $ref: '#/components/schemas/ResourceUsageStats'
+
+    PerformanceStats:
+      type: object
+      properties:
+        averageTime:
+          type: string
+          format: duration
+          example: "85ms"
+        minTime:
+          type: string
+          format: duration
+          example: "12ms"
+        maxTime:
+          type: string
+          format: duration
+          example: "523ms"
+        p50Time:
+          type: string
+          format: duration
+          example: "67ms"
+        p95Time:
+          type: string
+          format: duration
+          example: "234ms"
+        p99Time:
+          type: string
+          format: duration
+          example: "456ms"
+        callCount:
+          type: integer
+          format: int64
+          example: 1523
+        errorCount:
+          type: integer
+          format: int64
+          example: 3
+        cacheHitRate:
+          type: number
+          format: float
+          example: 0.72
+
+    ResourceUsageStats:
+      type: object
+      properties:
+        totalMemoryMB:
+          type: integer
+          format: int64
+          example: 512
+        averageMemoryMB:
+          type: integer
+          format: int64
+          example: 12
+        peakMemoryMB:
+          type: integer
+          format: int64
+          example: 128
+        totalCPUTimeMs:
+          type: integer
+          format: int64
+          example: 125000
+        averageCPUTimeMs:
+          type: integer
+          format: int64
+          example: 85
+        cacheHitRate:
+          type: number
+          format: float
+          example: 0.68
+        networkCalls:
+          type: integer
+          format: int64
+          example: 0
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+          example: "INVALID_INPUT"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Text parameter is required"
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "INVALID_INPUT"
+            message: "Text parameter is required"
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "UNAUTHORIZED"
+            message: "Invalid or missing API key"
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "INTERNAL_ERROR"
+            message: "An unexpected error occurred"
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authenticated endpoints
