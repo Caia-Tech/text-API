@@ -158,6 +158,35 @@ type Topic struct {
 	Examples   []string `json:"examples"`
 }
 
+// SummaryResult represents the output of text summarization
+type SummaryResult struct {
+	Summary             string          `json:"summary"`
+	Method              string          `json:"method"`           // extractive/hybrid/abstractive
+	OriginalSentences   int             `json:"original_sentences"`
+	SummarySentences    int             `json:"summary_sentences"`
+	CompressionRatio    float64         `json:"compression_ratio"`
+	ProcessingTime      time.Duration   `json:"processing_time"`
+	QualityMetrics      QualityMetrics  `json:"quality_metrics"`
+}
+
+// SentimentResult represents the output of sentiment analysis
+type SentimentResult struct {
+	OverallSentiment   Sentiment           `json:"overall_sentiment"`
+	SentenceSentiments []SentenceSentiment `json:"sentence_sentiments"`
+	EmotionProfile     EmotionProfile      `json:"emotion_profile"`
+	Method             string              `json:"method"`       // lexicon-based/rule-based/contextual-analysis
+	ProcessingTime     time.Duration       `json:"processing_time"`
+	QualityMetrics     QualityMetrics      `json:"quality_metrics"`
+}
+
+// TopicResult represents the output of topic classification
+type TopicResult struct {
+	Topics         []Topic        `json:"topics"`
+	Method         string         `json:"method"`         // clustering/statistical/comprehensive
+	ProcessingTime time.Duration  `json:"processing_time"`
+	QualityMetrics QualityMetrics `json:"quality_metrics"`
+}
+
 // DocumentAnalysis represents comprehensive document analysis
 type DocumentAnalysis struct {
 	TextAnalysis       ComplexityReport   `json:"text_analysis"`
